@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.27;
+pragma solidity ^0.8.20;
 
 contract Invitation {
     address public constant ROOT_ADDRESS = 0xE2CE73BF4776970a0C6E58F658929B125d749483;

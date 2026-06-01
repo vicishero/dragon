@@ -1,0 +1,16 @@
+# Dependencies
+node_modules
+
+# Environment variables
+.env
+
+# Hardhat files
+cache
+artifacts
+
+# Logs
+*.log
+
+# IDE
+.vscode
+.idea
