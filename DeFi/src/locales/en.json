@@ -1,0 +1,121 @@
+{
+  "common": {
+    "appName": "DeFi",
+    "connectWallet": "Connect Wallet",
+    "disconnect": "Disconnect",
+    "language": "Language",
+    "chinese": "中文",
+    "english": "English"
+  },
+  "nav": {
+    "home": "Home",
+    "team": "Team",
+    "ecology": "Ecology"
+  },
+  "home": {
+    "heroTitle": "DeFi Decentralized Finance Platform",
+    "heroSubtitle": "Secure, efficient, and transparent decentralized financial services",
+    "getStarted": "Get Started",
+    "tvl": "Total Value Locked",
+    "users": "Users",
+    "volume": "Trading Volume",
+    "assets": "Assets",
+    "featuresTitle": "Core Features",
+    "features": {
+      "swap": {
+        "title": "Decentralized Swap",
+        "desc": "Fast and secure token exchange"
+      },
+      "earn": {
+        "title": "Yield Farming",
+        "desc": "Stake assets for high returns"
+      },
+      "lend": {
+        "title": "Staking & Lending",
+        "desc": "Flexible lending market"
+      },
+      "liquidity": {
+        "title": "Liquidity Mining",
+        "desc": "Provide liquidity to earn fees"
+      }
+    },
+    "partners": "Partners",
+    "followUs": "Follow us",
+    "sale": {
+      "title": "Private Sales",
+      "day": "Day",
+      "hours": "Hours",
+      "minutes": "Minutes",
+      "seconds": "Seconds",
+      "raisedAmount": "Raised Amount",
+      "minimumTarget": "Minimum Target",
+      "maximumTarget": "Maximum Target",
+      "buyNow": "BUY NOW",
+      "minimumBuy": "Minimum Buy",
+      "buyModal": {
+        "title": "Buy",
+        "enterAmount": "Enter purchase amount:",
+        "placeholder": "0.00",
+        "max": "MAX",
+        "usdtBalance": "USDT Balance",
+        "approve": "Approve",
+        "approving": "Approving...",
+        "buy": "Buy",
+        "buying": "Buying...",
+        "pleaseEnterAmount": "Please enter purchase amount",
+        "buySuccess": "Purchase successful! Amount: "
+      }
+    }
+  },
+  "team": {
+    "title": "Our Team",
+    "subtitle": "Professional team composed of industry experts",
+    "advisors": "Advisors",
+    "members": [
+      {
+        "name": "Zhang San",
+        "role": "Founder & CEO",
+        "bio": "10 years blockchain experience, former Ethereum core developer"
+      },
+      {
+        "name": "Li Si",
+        "role": "CTO",
+        "bio": "Full-stack engineer, focused on DeFi protocol development"
+      },
+      {
+        "name": "Wang Wu",
+        "role": "Product Manager",
+        "bio": "5 years DeFi product design experience"
+      },
+      {
+        "name": "Zhao Liu",
+        "role": "Operations Director",
+        "bio": "Community building and marketing expert"
+      }
+    ]
+  },
+  "ecology": {
+    "title": "DeFi Ecosystem",
+    "subtitle": "Building a complete decentralized finance ecosystem",
+    "apps": {
+      "dex": {
+        "title": "DEX Exchange",
+        "desc": "Decentralized token trading platform"
+      },
+      "lending": {
+        "title": "Lending Protocol",
+        "desc": "Decentralized lending market"
+      },
+      "nft": {
+        "title": "NFT Market",
+        "desc": "Digital art trading platform"
+      },
+      "governance": {
+        "title": "DAO Governance",
+        "desc": "Community governance and voting system"
+      }
+    },
+    "roadmap": "Roadmap",
+    "community": "Join Community"
+  }
+}

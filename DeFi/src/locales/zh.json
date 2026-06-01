@@ -1,0 +1,121 @@
+{
+  "common": {
+    "appName": "DeFi",
+    "connectWallet": "连接钱包",
+    "disconnect": "断开连接",
+    "language": "语言",
+    "chinese": "中文",
+    "english": "English"
+  },
+  "nav": {
+    "home": "首页",
+    "team": "团队",
+    "ecology": "生态"
+  },
+  "home": {
+    "heroTitle": "DeFi 去中心化金融平台",
+    "heroSubtitle": "安全、高效、透明的去中心化金融服务",
+    "getStarted": "开始使用",
+    "tvl": "总锁仓量",
+    "users": "用户数",
+    "volume": "交易额",
+    "assets": "支持币种",
+    "featuresTitle": "核心功能",
+    "features": {
+      "swap": {
+        "title": "去中心化交易",
+        "desc": "快速安全的代币兑换服务"
+      },
+      "earn": {
+        "title": "收益挖矿",
+        "desc": "质押资产获取高收益"
+      },
+      "lend": {
+        "title": "质押借贷",
+        "desc": "灵活的借贷市场"
+      },
+      "liquidity": {
+        "title": "流动性挖矿",
+        "desc": "提供流动性赚取手续费"
+      }
+    },
+    "partners": "合作伙伴",
+    "followUs": "加入我们",
+    "sale": {
+      "title": "私募",
+      "day": "天",
+      "hours": "小时",
+      "minutes": "分钟",
+      "seconds": "秒",
+      "raisedAmount": "已募集金额",
+      "minimumTarget": "最低目标",
+      "maximumTarget": "最高目标",
+      "buyNow": "立即购买",
+      "minimumBuy": "最低购买量",
+      "buyModal": {
+        "title": "购买",
+        "enterAmount": "输入购买金额：",
+        "placeholder": "0.00",
+        "max": "最大",
+        "usdtBalance": "USDT余额",
+        "approve": "授权",
+        "approving": "授权中...",
+        "buy": "购买",
+        "buying": "购买中...",
+        "pleaseEnterAmount": "请输入购买金额",
+        "buySuccess": "购买成功！金额："
+      }
+    }
+  },
+  "team": {
+    "title": "我们的团队",
+    "subtitle": "由业界顶尖专家组成的专业团队",
+    "advisors": "顾问团队",
+    "members": [
+      {
+        "name": "张三",
+        "role": "创始人 & CEO",
+        "bio": "10年区块链行业经验，前以太坊核心开发者"
+      },
+      {
+        "name": "李四",
+        "role": "技术总监",
+        "bio": "全栈工程师，专注于 DeFi 协议开发"
+      },
+      {
+        "name": "王五",
+        "role": "产品经理",
+        "bio": "5年 DeFi 产品设计经验"
+      },
+      {
+        "name": "赵六",
+        "role": "运营总监",
+        "bio": "社区建设和市场推广专家"
+      }
+    ]
+  },
+  "ecology": {
+    "title": "DeFi 生态系统",
+    "subtitle": "构建完整的去中心化金融生态",
+    "apps": {
+      "dex": {
+        "title": "DEX 交易所",
+        "desc": "去中心化代币交易平台"
+      },
+      "lending": {
+        "title": "借贷协议",
+        "desc": "去中心化借贷市场"
+      },
+      "nft": {
+        "title": "NFT 市场",
+        "desc": "数字艺术品交易平台"
+      },
+      "governance": {
+        "title": "DAO 治理",
+        "desc": "社区自治和投票系统"
+      }
+    },
+    "roadmap": "发展路线图",
+    "community": "加入社区"
+  }
+}
