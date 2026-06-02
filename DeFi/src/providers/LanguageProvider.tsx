@@ -14,6 +14,15 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+// 获取浏览器/系统语言
+const getBrowserLanguage = (): Language => {
+  const browserLang = navigator.language || (navigator as any).userLanguage;
+  if (browserLang.startsWith('zh')) {
+    return 'zh';
+  }
+  return 'en';
+};
+
 // 初始化 i18n
 i18n
   .use(initReactI18next)
@@ -36,7 +45,11 @@ interface LanguageProviderProps {
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>(() => {
     const saved = localStorage.getItem('language');
-    return (saved as Language) || 'zh';
+    if (saved) {
+      return saved as Language;
+    }
+    // 如果没有保存的语言，使用浏览器/系统语言
+    return getBrowserLanguage();
   });
 
   useEffect(() => {

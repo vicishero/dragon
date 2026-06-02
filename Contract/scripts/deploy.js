@@ -14,8 +14,7 @@ async function main() {
 
   // Deploy PrivateSale Contract - need USDT address
   console.log("\nDeploying PrivateSale contract...");
-  console.log("Please replace USDT_ADDRESS with actual USDT contract address on BSC");
-  const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B319795555555"; // BSC USDT address (example - replace with real one)
+  const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955"; // BSC USDT address
 
   const PrivateSale = await ethers.getContractFactory("PrivateSale");
   const privateSale = await PrivateSale.deploy(USDT_ADDRESS);

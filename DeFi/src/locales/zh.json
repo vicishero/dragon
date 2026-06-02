@@ -7,14 +7,26 @@
     "chinese": "中文",
     "english": "English"
   },
+  "bind": {
+    "title": "绑定邀请关系",
+    "inviteCode": "邀请码",
+    "inviteCodePlaceholder": "请输入邀请人地址",
+    "noInviteCodeHint": "如果没有邀请码，将自动绑定到根地址",
+    "bind": "绑定",
+    "binding": "绑定中...",
+    "pleaseEnterInviteCode": "请输入邀请码",
+    "invalidInviteCode": "请输入有效的邀请码地址",
+    "bindFailed": "绑定失败，请重试",
+    "bindSuccess": "绑定成功！"
+  },
   "nav": {
     "home": "首页",
     "team": "团队",
     "ecology": "生态"
   },
   "home": {
-    "heroTitle": "DeFi 去中心化金融平台",
-    "heroSubtitle": "安全、高效、透明的去中心化金融服务",
+    "heroTitle": "DeFi5.0时代",
+    "heroSubtitle": "智能合约驱动的创新财富引擎",
     "getStarted": "开始使用",
     "tvl": "总锁仓量",
     "users": "用户数",
@@ -42,7 +54,7 @@
     "partners": "合作伙伴",
     "followUs": "加入我们",
     "sale": {
-      "title": "私募",
+      "title": "初始捐赠",
       "day": "天",
       "hours": "小时",
       "minutes": "分钟",
@@ -50,20 +62,24 @@
       "raisedAmount": "已募集金额",
       "minimumTarget": "最低目标",
       "maximumTarget": "最高目标",
-      "buyNow": "立即购买",
-      "minimumBuy": "最低购买量",
+      "buyNow": "立即捐赠",
+      "minimumBuy": "最低捐赠量",
+      "minimumDonationAmount": "最低捐赠金额：200 USDT",
+      "copyReferralLink": "复制推广链接",
+      "copySuccess": "复制成功！",
       "buyModal": {
-        "title": "购买",
-        "enterAmount": "输入购买金额：",
+        "title": "捐赠",
+        "enterAmount": "输入捐赠金额：",
         "placeholder": "0.00",
         "max": "最大",
         "usdtBalance": "USDT余额",
         "approve": "授权",
         "approving": "授权中...",
-        "buy": "购买",
-        "buying": "购买中...",
-        "pleaseEnterAmount": "请输入购买金额",
-        "buySuccess": "购买成功！金额："
+        "buy": "捐赠",
+        "buying": "捐赠中...",
+        "pleaseEnterAmount": "请输入捐赠金额",
+        "minimumDonationAmount": "最低捐赠金额：200 USDT",
+        "buySuccess": "捐赠成功！金额："
       }
     }
   },

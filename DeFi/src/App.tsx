@@ -1,24 +1,13 @@
-import { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { Home } from './pages/Home';
 import { Team } from './pages/Team';
 import { Ecology } from './pages/Ecology';
-import { BindModal, useModal } from './components/common/Modal';
-import { useWallet } from './hooks/useWallet';
+import { BuyModal, useModal } from './components/common/Modal';
 
 function AppContent() {
-  const { isBindModalOpen, closeBindModal, openBindModal } = useModal();
-  const { isConnected } = useWallet();
-  const [hasShownModal, setHasShownModal] = useState(false);
+  const { isBuyModalOpen, closeBuyModal } = useModal();
   const location = useLocation();
-
-  useEffect(() => {
-    if (isConnected && !hasShownModal) {
-      openBindModal();
-      setHasShownModal(true);
-    }
-  }, [isConnected, hasShownModal, openBindModal]);
 
   // 保留URL参数的重定向组件
   const NavigateWithParams = () => {
@@ -36,7 +25,7 @@ function AppContent() {
           <Route path="*" element={<NavigateWithParams />} />
         </Routes>
       </Layout>
-      <BindModal isOpen={isBindModalOpen} onClose={closeBindModal} />
+      <BuyModal isOpen={isBuyModalOpen} onClose={closeBuyModal} />
     </>
   );
 }

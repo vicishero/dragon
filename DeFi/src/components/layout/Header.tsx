@@ -1,10 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../../hooks/useLanguage';
 import { WalletConnect } from '../wallet/WalletConnect';
 
 export const Header: React.FC = () => {
-  const { t } = useTranslation();
   const { language, setLanguage } = useLanguage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);

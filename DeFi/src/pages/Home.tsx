@@ -1,34 +1,84 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card } from '../components/common/Card';
 import { useWallet } from '../hooks/useWallet';
 import { useModal, BuyModal } from '../components/common/Modal';
+import { PRIVATE_SALE_ADDRESS, PRIVATE_SALE_ABI } from '../contracts/privateSale';
 
 const CountdownBox: React.FC<{ value: string | number; label: string }> = ({ value, label }) => (
-  <div className="bg-bg-secondary p-4 rounded-xl border border-gray-700">
-    <div className="text-3xl font-bold text-text-primary mb-1">{value}</div>
-    <div className="text-sm text-text-muted">{label}</div>
+  <div className="bg-bg-secondary p-4 rounded-xl border border-gray-700 text-center">
+    <div className="text-2xl font-bold text-text-primary mb-1">{value}</div>
+    <div className="text-xs text-text-muted">{label}</div>
   </div>
 );
 
 const ProgressBar: React.FC<{ percentage: number }> = ({ percentage }) => (
-  <div className="w-full h-12 bg-bg-secondary rounded-xl overflow-hidden border border-gray-700">
+  <div className="w-full h-12 bg-bg-secondary rounded-xl overflow-hidden border border-gray-700 relative">
     <div
-      className="h-full bg-gradient-to-r from-green-600 to-green-500 transition-all duration-500 flex items-center justify-center"
-      style={{ width: `${percentage}%` }}
-    >
-      <div className="text-2xl font-bold text-white">{percentage}%</div>
+      className="h-full bg-gradient-to-r from-green-600 to-green-500 transition-all duration-500"
+      style={{ width: `${Math.min(percentage, 100)}%` }}
+    />
+    <div className="absolute inset-0 flex items-center justify-center">
+      <div className="text-xl font-bold text-white">{Math.round(percentage)}%</div>
     </div>
   </div>
 );
 
+// 目标金额 - 60,000 USDT
+const TARGET_AMOUNT = 60000n * 10n ** 18n;
+// 基础金额 - 25,000 USDT
+const BASE_AMOUNT = 25000n * 10n ** 18n;
+// USDT decimals
+const USDT_DECIMALS = 18;
+
+// 格式化金额
+const formatAmount = (amount: bigint | null): string => {
+  if (amount === null) return '0';
+  const displayAmount = amount + BASE_AMOUNT;
+  const divisor = 10n ** BigInt(USDT_DECIMALS);
+  const whole = displayAmount / divisor;
+  return whole.toLocaleString();
+};
+
 export const Home: React.FC = () => {
   const { t } = useTranslation();
-  const { address, isConnected } = useWallet();
+  const { address, isConnected, web3, openWalletModal } = useWallet();
   const { isBuyModalOpen, openBuyModal, closeBuyModal } = useModal();
+
+  // 处理BUY NOW按钮点击
+  const handleBuyNowClick = () => {
+    if (!isConnected) {
+      openWalletModal();
+    } else {
+      openBuyModal();
+    }
+  };
   const [showCopySuccess, setShowCopySuccess] = useState(false);
   const [shouldSlideOut, setShouldSlideOut] = useState(false);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [totalRaised, setTotalRaised] = useState<bigint | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // 从合约读取募集金额
+  const fetchTotalRaised = useCallback(async () => {
+    if (!web3) return;
+
+    try {
+      setLoading(true);
+
+      // 转换为checksum地址
+      const privateSaleAddress = web3.utils.toChecksumAddress(PRIVATE_SALE_ADDRESS);
+
+      const contract = new web3.eth.Contract(PRIVATE_SALE_ABI, privateSaleAddress);
+      const raised = await contract.methods.totalRaised().call();
+      console.log('募集金额:', raised);
+      setTotalRaised(BigInt(raised as string));
+    } catch (error) {
+      console.error('读取募集金额失败:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [web3]);
 
   // 计算截止时间：今年6月14日
   const getEndDate = () => {
@@ -54,8 +104,16 @@ export const Home: React.FC = () => {
     return { days, hours, minutes, seconds };
   };
 
+  // 计算进度百分比
+  const getProgressPercentage = () => {
+    if (totalRaised === null) return 0;
+    const displayAmount = totalRaised + BASE_AMOUNT;
+    const percentage = (Number(displayAmount) / Number(TARGET_AMOUNT)) * 100;
+    return Math.min(percentage, 100);
+  };
+
   useEffect(() => {
-    // 初始化
+    // 初始化倒计时
     setCountdown(calculateCountdown());
 
     // 每秒更新
@@ -65,6 +123,15 @@ export const Home: React.FC = () => {
 
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    // 读取募集金额
+    fetchTotalRaised();
+
+    // 每30秒刷新一次
+    const interval = setInterval(fetchTotalRaised, 30000);
+    return () => clearInterval(interval);
+  }, [fetchTotalRaised]);
 
   const handleCopyReferralLink = async () => {
     if (!isConnected || !address) {
@@ -87,8 +154,28 @@ export const Home: React.FC = () => {
         setShouldSlideOut(false);
       }, 1600);
     } catch (err) {
-      console.error('复制失败:', err);
-      alert('复制失败，请手动复制');
+      console.error('复制失败，尝试备用方法:', err);
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = referralLink;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+
+        setShowCopySuccess(true);
+        setShouldSlideOut(false);
+
+        setTimeout(() => setShouldSlideOut(true), 1000);
+
+        setTimeout(() => {
+          setShowCopySuccess(false);
+          setShouldSlideOut(false);
+        }, 1600);
+      } catch (err2) {
+        console.error('备用复制方法也失败:', err2);
+        alert(`复制失败，请手动复制：\n${referralLink}`);
+      }
     }
   };
 
@@ -111,17 +198,17 @@ export const Home: React.FC = () => {
         </div>
 
         <h1 className="text-2xl font-bold text-text-primary mb-2 relative">
-          DeFi5.0时代
+          {t('home.heroTitle')}
         </h1>
         <p className="text-primary text-sm mb-6 relative">
-          智能合约驱动的创新财富引擎
+          {t('home.heroSubtitle')}
         </p>
       </div>
 
       {/* 私募销售板块 */}
       <div>
         <Card>
-        <h2 className="text-xl font-bold text-center mb-6 text-text-primary">
+        <h2 className="text-lg font-bold text-center mb-6 text-text-primary">
           {t('home.sale.title')}
         </h2>
 
@@ -135,32 +222,34 @@ export const Home: React.FC = () => {
 
         {/* 募集金额 */}
         <div className="text-center mb-6">
-          <span className="text-text-muted">{t('home.sale.raisedAmount')}: </span>
-          <span className="text-xl font-bold text-text-primary">$1,100,000</span>
+          <span className="text-text-muted text-sm">{t('home.sale.raisedAmount')}: </span>
+          <span className="text-lg font-bold text-text-primary">
+            {loading ? '...' : `${formatAmount(totalRaised)} USDT`}
+          </span>
         </div>
 
         {/* 进度条 */}
         <div className="mb-6">
-          <ProgressBar percentage={65} />
+          <ProgressBar percentage={getProgressPercentage()} />
         </div>
 
         {/* 目标 */}
         <div className="flex justify-between mb-6">
           <div className="text-left">
-            <div className="text-sm text-text-muted mb-1">{t('home.sale.minimumTarget')}</div>
-            <div className="text-2xl font-bold text-text-primary">30,000 USDT</div>
+            <div className="text-xs text-text-muted mb-1">{t('home.sale.minimumTarget')}</div>
+            <div className="text-xl font-bold text-text-primary">30,000 USDT</div>
           </div>
           <div className="text-right">
-            <div className="text-sm text-text-muted mb-1">{t('home.sale.maximumTarget')}</div>
-            <div className="text-2xl font-bold text-text-primary">100,000 USDT</div>
+            <div className="text-xs text-text-muted mb-1">{t('home.sale.maximumTarget')}</div>
+            <div className="text-xl font-bold text-text-primary">60,000 USDT</div>
           </div>
         </div>
 
-        {/* 购买按钮 */}
+        {/* 捐赠按钮 */}
         <div className="text-center mb-6">
           <button
-            onClick={openBuyModal}
-            className="px-10 py-4 btn-gradient text-white text-lg font-bold rounded-btn hover:opacity-90 transition-opacity shadow-lg"
+            onClick={handleBuyNowClick}
+            className="px-10 py-4 btn-gradient text-white text-base font-bold rounded-btn hover:opacity-90 transition-opacity shadow-lg"
           >
             {t('home.sale.buyNow')}
           </button>
@@ -168,8 +257,8 @@ export const Home: React.FC = () => {
 
         {/* 最小购买 */}
         <div className="text-center pt-4 border-t border-gray-700">
-          <div className="text-text-muted">{t('home.sale.minimumBuy')}: </div>
-          <div className="text-xl font-bold text-text-primary mt-1">200 USDT</div>
+          <div className="text-text-muted text-sm">{t('home.sale.minimumBuy')}: </div>
+          <div className="text-lg font-bold text-text-primary mt-1">200 USDT</div>
         </div>
         </Card>
       </div>
@@ -180,7 +269,7 @@ export const Home: React.FC = () => {
           onClick={handleCopyReferralLink}
           className="w-full py-3 btn-gradient text-white font-semibold rounded-btn hover:opacity-90 transition-opacity"
         >
-          复制推广链接
+          {t('home.sale.copyReferralLink')}
         </button>
 
         {/* 复制成功提示 */}
@@ -190,7 +279,7 @@ export const Home: React.FC = () => {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              <span className="font-semibold">复制成功！</span>
+              <span className="font-semibold">{t('home.sale.copySuccess')}</span>
             </div>
           </div>
         )}

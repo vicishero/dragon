@@ -7,14 +7,26 @@
     "chinese": "中文",
     "english": "English"
   },
+  "bind": {
+    "title": "Bind Invitation",
+    "inviteCode": "Invite Code",
+    "inviteCodePlaceholder": "Enter inviter address",
+    "noInviteCodeHint": "If no invite code, will automatically bind to root address",
+    "bind": "Bind",
+    "binding": "Binding...",
+    "pleaseEnterInviteCode": "Please enter invite code",
+    "invalidInviteCode": "Please enter valid invite code address",
+    "bindFailed": "Bind failed, please try again",
+    "bindSuccess": "Bind successful!"
+  },
   "nav": {
     "home": "Home",
     "team": "Team",
     "ecology": "Ecology"
   },
   "home": {
-    "heroTitle": "DeFi Decentralized Finance Platform",
-    "heroSubtitle": "Secure, efficient, and transparent decentralized financial services",
+    "heroTitle": "DeFi 5.0 Era",
+    "heroSubtitle": "Innovative wealth engine driven by smart contracts",
     "getStarted": "Get Started",
     "tvl": "Total Value Locked",
     "users": "Users",
@@ -42,7 +54,7 @@
     "partners": "Partners",
     "followUs": "Follow us",
     "sale": {
-      "title": "Private Sales",
+      "title": "Initial Donation",
       "day": "Day",
       "hours": "Hours",
       "minutes": "Minutes",
@@ -50,20 +62,24 @@
       "raisedAmount": "Raised Amount",
       "minimumTarget": "Minimum Target",
       "maximumTarget": "Maximum Target",
-      "buyNow": "BUY NOW",
-      "minimumBuy": "Minimum Buy",
+      "buyNow": "DONATE NOW",
+      "minimumBuy": "Minimum Donation",
+      "minimumDonationAmount": "Minimum donation amount: 200 USDT",
+      "copyReferralLink": "Copy Referral Link",
+      "copySuccess": "Copied successfully!",
       "buyModal": {
-        "title": "Buy",
-        "enterAmount": "Enter purchase amount:",
+        "title": "Donate",
+        "enterAmount": "Enter donation amount:",
         "placeholder": "0.00",
         "max": "MAX",
         "usdtBalance": "USDT Balance",
         "approve": "Approve",
         "approving": "Approving...",
-        "buy": "Buy",
-        "buying": "Buying...",
-        "pleaseEnterAmount": "Please enter purchase amount",
-        "buySuccess": "Purchase successful! Amount: "
+        "buy": "Donate",
+        "buying": "Donating...",
+        "pleaseEnterAmount": "Please enter donation amount",
+        "minimumDonationAmount": "Minimum donation amount: 200 USDT",
+        "buySuccess": "Donation successful! Amount: "
       }
     }
   },

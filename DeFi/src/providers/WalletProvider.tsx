@@ -1,5 +1,7 @@
-import React, { createContext, useContext, ReactNode, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, ReactNode, useState, useCallback, useEffect, useRef } from 'react';
 import Web3 from 'web3';
+import { INVITATION_CONTRACT_ADDRESS, INVITATION_ABI } from '../contracts/invitation';
+import { BindInvitationModal } from '../components/wallet/BindInvitationModal';
 
 interface WalletContextType {
   address: string | undefined;
@@ -9,6 +11,8 @@ interface WalletContextType {
   disconnect: () => void;
   openWalletModal: () => void;
   web3: Web3 | undefined;
+  isBound: boolean;
+  inviterAddress: string | undefined;
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
@@ -21,7 +25,10 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
   const [address, setAddress] = useState<string | undefined>();
   const [isConnecting, setIsConnecting] = useState(false);
   const [showWalletModal, setShowWalletModal] = useState(false);
+  const [showBindModal, setShowBindModal] = useState(false);
   const [web3, setWeb3] = useState<Web3 | undefined>();
+  const [isBound, setIsBound] = useState(false);
+  const [inviterAddress, setInviterAddress] = useState<string | undefined>();
 
   const isConnected = !!address;
   const isDisconnected = !address;
@@ -33,6 +40,50 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
   const disconnect = useCallback(() => {
     setAddress(undefined);
     setWeb3(undefined);
+    setIsBound(false);
+    setInviterAddress(undefined);
+    setShowBindModal(false);
+  }, []);
+
+  // 检测绑定状态
+  const checkBindStatus = useCallback(async (userAddress: string, web3Instance: Web3) => {
+    try {
+      console.log('开始检测绑定关系...');
+      const contract = new web3Instance.eth.Contract(INVITATION_ABI, INVITATION_CONTRACT_ADDRESS);
+
+      // 使用合约的 isBound 接口判断是否已绑定
+      const boundResult = await contract.methods.isBound(userAddress).call();
+      console.log('isBound 返回值:', boundResult, '类型:', typeof boundResult);
+
+      // 健壮的布尔值转换 - 处理可能的返回值格式问题
+      const bound = !!boundResult;
+      console.log('转换后的 bound 值:', bound);
+
+      if (bound) {
+        // 已绑定，获取邀请人地址
+        const inviterAddr = await contract.methods.getInviter(userAddress).call();
+        console.log('getInviter 返回值:', inviterAddr, '类型:', typeof inviterAddr);
+        setIsBound(true);
+        // 安全的类型转换
+        const inviterAddrStr = String(inviterAddr);
+        setInviterAddress(inviterAddrStr);
+        console.log('已绑定邀请关系，邀请人:', inviterAddrStr);
+        return;
+      }
+
+      // 未绑定，显示绑定面板
+      console.log('未绑定，显示绑定面板');
+      setShowBindModal(true);
+    } catch (error) {
+      console.error('检测绑定状态失败:', error);
+    }
+  }, []);
+
+  // 绑定成功回调
+  const handleBindSuccess = useCallback((inviter: string) => {
+    setIsBound(true);
+    setInviterAddress(inviter);
+    console.log('绑定成功，邀请人:', inviter);
   }, []);
 
   const connectMetaMask = useCallback(async () => {
@@ -54,6 +105,9 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
         setWeb3(newWeb3);
         setAddress(accounts[0]);
         setShowWalletModal(false);
+
+        // 检测绑定状态
+        await checkBindStatus(accounts[0], newWeb3);
       }
     } catch (error) {
       console.error('连接钱包失败:', error);
@@ -61,57 +115,76 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
     } finally {
       setIsConnecting(false);
     }
-  }, []);
+  }, [checkBindStatus]);
 
-  // 自动连接已授权的钱包
+  // 初始化监听
+  const initializedRef = useRef(false);
+
   useEffect(() => {
-    const autoConnect = async () => {
-      if (typeof window.ethereum !== 'undefined') {
-        try {
-          // 检查是否已经有授权的账户
-          const accounts = await window.ethereum.request({
-            method: 'eth_accounts'
-          });
+    if (initializedRef.current) {
+      return;
+    }
+    initializedRef.current = true;
 
-          if (accounts && accounts.length > 0) {
-            const newWeb3 = new Web3(window.ethereum);
-            setWeb3(newWeb3);
-            setAddress(accounts[0]);
-          }
-        } catch (error) {
-          console.error('自动连接失败:', error);
+    if (typeof window.ethereum === 'undefined') {
+      return;
+    }
+
+    const ethereum = window.ethereum as any;
+
+    const handleAccountsChanged = async (accounts: string[]) => {
+      if (accounts.length > 0) {
+        const newWeb3 = new Web3(ethereum);
+        setWeb3(newWeb3);
+        setAddress(accounts[0]);
+
+        // 检测绑定状态
+        await checkBindStatus(accounts[0], newWeb3);
+      } else {
+        setAddress(undefined);
+        setWeb3(undefined);
+        setIsBound(false);
+        setInviterAddress(undefined);
+        setShowBindModal(false);
+      }
+    };
+
+    const handleChainChanged = () => {
+      window.location.reload();
+    };
+
+    // 自动连接已授权的钱包
+    const autoConnect = async () => {
+      try {
+        const accounts = await ethereum.request({
+          method: 'eth_accounts'
+        });
+
+        if (accounts && accounts.length > 0) {
+          const newWeb3 = new Web3(ethereum);
+          setWeb3(newWeb3);
+          setAddress(accounts[0]);
+          await checkBindStatus(accounts[0], newWeb3);
         }
+      } catch (error) {
+        console.error('自动连接失败:', error);
       }
     };
 
     autoConnect();
-  }, []);
 
-  // 监听账户变化
-  useEffect(() => {
-    if (typeof window.ethereum !== 'undefined') {
-      const handleAccountsChanged = (accounts: string[]) => {
-        if (accounts.length > 0) {
-          setAddress(accounts[0]);
-        } else {
-          setAddress(undefined);
-          setWeb3(undefined);
-        }
-      };
+    ethereum.on('accountsChanged', handleAccountsChanged);
+    ethereum.on('chainChanged', handleChainChanged);
 
-      const handleChainChanged = () => {
-        window.location.reload();
-      };
-
-      window.ethereum.on('accountsChanged', handleAccountsChanged);
-      window.ethereum.on('chainChanged', handleChainChanged);
-
-      return () => {
-        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
-        window.ethereum.removeListener('chainChanged', handleChainChanged);
-      };
-    }
-  }, []);
+    return () => {
+      try {
+        ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        ethereum.removeListener('chainChanged', handleChainChanged);
+      } catch (e) {
+        console.error('清理监听器失败:', e);
+      }
+    };
+  }, [checkBindStatus]);
 
   return (
     <WalletContext.Provider
@@ -123,6 +196,8 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
         disconnect,
         openWalletModal,
         web3,
+        isBound,
+        inviterAddress,
       }}
     >
       {children}
@@ -167,6 +242,17 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* 绑定邀请关系弹窗 */}
+      {showBindModal && address && web3 && (
+        <BindInvitationModal
+          isOpen={showBindModal}
+          onClose={() => setShowBindModal(false)}
+          address={address}
+          web3={web3}
+          onBindSuccess={handleBindSuccess}
+        />
       )}
     </WalletContext.Provider>
   );
