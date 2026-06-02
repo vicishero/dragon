@@ -53,7 +53,7 @@ export const Footer: React.FC = () => {
         <div className="glass border-t border-gray-800 px-2 py-1.5 flex items-center justify-around">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
-            const isDisabled = item.key === 'team' || item.key === 'ecology';
+            const isDisabled = item.key === 'ecology';
 
             const handleClick = () => {
               if (!isDisabled) {

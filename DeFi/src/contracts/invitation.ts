@@ -1,4 +1,4 @@
-export const INVITATION_CONTRACT_ADDRESS = "0x27733Fa5DF5743356B6b11263f1B3304F7FcE776";
+export const INVITATION_CONTRACT_ADDRESS = "0xaB78b051D1c302ea7f52Db1DEf20BdD90aa74c2c";
 
 export const INVITATION_ABI = [
   {
@@ -19,6 +19,19 @@ export const INVITATION_ABI = [
     ],
     "name": "Bind",
     "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "MAX_REFER_LEVEL",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [],
@@ -111,12 +124,50 @@ export const INVITATION_ABI = [
         "type": "address"
       }
     ],
+    "name": "getTeamCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_user",
+        "type": "address"
+      }
+    ],
     "name": "isBound",
     "outputs": [
       {
         "internalType": "bool",
         "name": "",
         "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "teamCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",

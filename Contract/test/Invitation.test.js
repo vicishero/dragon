@@ -90,5 +90,21 @@ describe("Invitation Contract", function () {
       expect(await invitation.isBound(addr3.address)).to.be.true;
       expect(await invitation.isBound(owner.address)).to.be.false;
     });
+
+    it("Should return correct max reference level", async function () {
+      expect(await invitation.MAX_REFER_LEVEL()).to.equal(100);
+    });
+  });
+
+  describe("Team Count", function () {
+    it("Should calculate team count correctly", async function () {
+      await invitation.connect(addr1).bind(ROOT_ADDRESS);
+      await invitation.connect(addr2).bind(addr1.address);
+      await invitation.connect(addr3).bind(addr2.address);
+
+      expect(await invitation.getTeamCount(addr1.address)).to.equal(2);
+      expect(await invitation.getTeamCount(addr2.address)).to.equal(1);
+      expect(await invitation.getTeamCount(addr3.address)).to.equal(0);
+    });
   });
 });

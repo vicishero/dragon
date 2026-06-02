@@ -24,10 +24,10 @@ const ProgressBar: React.FC<{ percentage: number }> = ({ percentage }) => (
   </div>
 );
 
-// 目标金额 - 60,000 USDT
-const TARGET_AMOUNT = 60000n * 10n ** 18n;
-// 基础金额 - 25,000 USDT
-const BASE_AMOUNT = 25000n * 10n ** 18n;
+// 目标金额 - 40,000 USDT
+const TARGET_AMOUNT = 40000n * 10n ** 18n;
+// 基础金额 - 0 USDT
+const BASE_AMOUNT = 0n;
 // USDT decimals
 const USDT_DECIMALS = 18;
 
@@ -241,7 +241,7 @@ export const Home: React.FC = () => {
           </div>
           <div className="text-right">
             <div className="text-xs text-text-muted mb-1">{t('home.sale.maximumTarget')}</div>
-            <div className="text-xl font-bold text-text-primary">60,000 USDT</div>
+            <div className="text-xl font-bold text-text-primary">40,000 USDT</div>
           </div>
         </div>
 

@@ -1,4 +1,4 @@
-export const PRIVATE_SALE_ADDRESS = '0xB690ce8b302B806D3126402D95B8c25987478C1b';
+export const PRIVATE_SALE_ADDRESS = '0x1d4D0Ab411e2654C94418A29D27863eA9d26BdFE';
 
 // BSC链上的USDT地址
 export const USDT_ADDRESS = '0x55d398326f99059fF775485246999027B3197955';
@@ -9,6 +9,11 @@ export const PRIVATE_SALE_ABI = [
       {
         "internalType": "address",
         "name": "_usdt",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_invitation",
         "type": "address"
       }
     ],
@@ -128,6 +133,25 @@ export const PRIVATE_SALE_ABI = [
         "type": "address"
       }
     ],
+    "name": "getUserPerformance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_user",
+        "type": "address"
+      }
+    ],
     "name": "getUserPurchaseCount",
     "outputs": [
       {
@@ -172,6 +196,19 @@ export const PRIVATE_SALE_ABI = [
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "invitation",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -240,6 +277,25 @@ export const PRIVATE_SALE_ABI = [
         "internalType": "address",
         "name": "",
         "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "userPerformance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
