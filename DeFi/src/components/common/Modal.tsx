@@ -69,12 +69,13 @@ const parseAmount = (amountStr: string): bigint | null => {
 export const BuyModal: React.FC<BuyModalProps> = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
   const { address, web3 } = useWallet();
-  const [amount, setAmount] = useState('');
+  const [amount, setAmount] = useState('200'); // 固定金额200 USDT
   const [isApproved, setIsApproved] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [usdtBalance, setUsdtBalance] = useState<bigint | null>(null);
   const [allowance, setAllowance] = useState<bigint | null>(null);
   const [loading, setLoading] = useState(false);
+  const [hasPurchased, setHasPurchased] = useState(false); // 是否已捐赠过
 
   // 重置状态
   const resetState = () => {
@@ -131,18 +132,31 @@ export const BuyModal: React.FC<BuyModalProps> = ({ isOpen, onClose }) => {
     }
   }, [web3, address, amount]);
 
-  // 当弹窗打开时读取余额和授权
+  // 检查用户是否已经购买过
+  const checkPurchaseStatus = useCallback(async () => {
+    if (!web3 || !address) return;
+
+    try {
+      const privateSaleAddress = web3.utils.toChecksumAddress(PRIVATE_SALE_ADDRESS);
+      const userAddress = web3.utils.toChecksumAddress(address);
+      const privateSaleContract = new web3.eth.Contract(PRIVATE_SALE_ABI, privateSaleAddress);
+
+      // 查询用户的购买数量
+      const purchaseCount = await privateSaleContract.methods.getUserPurchaseCount(userAddress).call();
+      setHasPurchased(Number(purchaseCount) > 0);
+    } catch (error) {
+      console.error('检查购买状态失败:', error);
+    }
+  }, [web3, address]);
+
+  // 当弹窗打开时读取余额、授权和检查购买状态
   useEffect(() => {
     if (isOpen && web3 && address) {
       fetchBalanceAndAllowance();
+      checkPurchaseStatus();
     }
-  }, [isOpen, web3, address, fetchBalanceAndAllowance]);
+  }, [isOpen, web3, address, fetchBalanceAndAllowance, checkPurchaseStatus]);
 
-  const handleMax = () => {
-    if (usdtBalance !== null) {
-      setAmount(formatDisplayAmount(usdtBalance));
-    }
-  };
 
   const handleApprove = async () => {
     if (!web3 || !address || !amount) {
@@ -227,8 +241,8 @@ export const BuyModal: React.FC<BuyModalProps> = ({ isOpen, onClose }) => {
 
   const displayBalance = usdtBalance !== null ? formatDisplayAmount(usdtBalance) : '...';
   const parsedAmount = parseAmount(amount);
-  const canApprove = !isProcessing && parsedAmount !== null && parsedAmount >= MIN_PURCHASE_AMOUNT;
-  const canBuy = !isProcessing && isApproved && parsedAmount !== null && parsedAmount >= MIN_PURCHASE_AMOUNT;
+  const canApprove = !isProcessing && !hasPurchased && parsedAmount !== null && parsedAmount >= MIN_PURCHASE_AMOUNT;
+  const canBuy = !isProcessing && !hasPurchased && isApproved && parsedAmount !== null && parsedAmount >= MIN_PURCHASE_AMOUNT;
 
   // 如果已经有足够的授权，直接显示购买按钮
   useEffect(() => {
@@ -267,22 +281,15 @@ export const BuyModal: React.FC<BuyModalProps> = ({ isOpen, onClose }) => {
                   <input
                     type="number"
                     value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
+                    readOnly // 只读，用户不能修改
                     placeholder={t('home.sale.buyModal.placeholder')}
                     min="200"
                     step="0.01"
                     disabled={isProcessing}
-                    className="w-full px-4 py-3 bg-bg-dark border border-gray-700 rounded-btn text-text-primary placeholder:text-text-muted focus:border-primary focus:outline-none transition-colors pr-16 disabled:opacity-50"
+                    className="w-full px-4 py-3 bg-bg-dark border border-gray-700 rounded-btn text-text-primary placeholder:text-text-muted focus:border-primary focus:outline-none transition-colors pr-16 disabled:opacity-50 cursor-not-allowed"
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted text-sm">USDT</span>
                 </div>
-                <button
-                  onClick={handleMax}
-                  disabled={isProcessing || loading}
-                  className="px-4 py-3 bg-primary/20 text-primary font-semibold rounded-btn hover:bg-primary/30 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {t('home.sale.buyModal.max')}
-                </button>
               </div>
               <p className="text-xs text-text-muted mt-2">{t('home.sale.minimumDonationAmount')}</p>
             </div>
@@ -292,6 +299,13 @@ export const BuyModal: React.FC<BuyModalProps> = ({ isOpen, onClose }) => {
               <span className="text-text-muted text-sm">{t('home.sale.buyModal.usdtBalance')}</span>
               <span className="text-text-primary font-semibold">{displayBalance} USDT</span>
             </div>
+
+            {/* 已捐赠提示 */}
+            {hasPurchased && (
+              <div className="flex justify-between items-center bg-yellow-500/20 border border-yellow-500/30 rounded-btn p-4">
+                <span className="text-yellow-400 text-sm font-medium">您已经参与过捐赠，每个地址只能捐赠一次</span>
+              </div>
+            )}
 
             {/* 授权/购买按钮 */}
             {!isApproved ? (
