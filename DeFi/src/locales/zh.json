@@ -69,7 +69,7 @@
       "copySuccess": "复制成功！",
       "buyModal": {
         "title": "捐赠",
-        "enterAmount": "输入捐赠金额：",
+        "enterAmount": "捐赠金额",
         "placeholder": "0.00",
         "max": "最大",
         "usdtBalance": "USDT余额",

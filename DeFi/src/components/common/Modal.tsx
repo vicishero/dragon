@@ -79,7 +79,7 @@ export const BuyModal: React.FC<BuyModalProps> = ({ isOpen, onClose }) => {
 
   // 重置状态
   const resetState = () => {
-    setAmount('');
+    setAmount('200'); // 重置为默认的200 USDT
     setIsApproved(false);
     setIsProcessing(false);
   };
@@ -151,9 +151,12 @@ export const BuyModal: React.FC<BuyModalProps> = ({ isOpen, onClose }) => {
 
   // 当弹窗打开时读取余额、授权和检查购买状态
   useEffect(() => {
-    if (isOpen && web3 && address) {
-      fetchBalanceAndAllowance();
-      checkPurchaseStatus();
+    if (isOpen) {
+      setAmount('200'); // 确保每次打开弹窗时金额都是200
+      if (web3 && address) {
+        fetchBalanceAndAllowance();
+        checkPurchaseStatus();
+      }
     }
   }, [isOpen, web3, address, fetchBalanceAndAllowance, checkPurchaseStatus]);
 
@@ -291,7 +294,6 @@ export const BuyModal: React.FC<BuyModalProps> = ({ isOpen, onClose }) => {
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted text-sm">USDT</span>
                 </div>
               </div>
-              <p className="text-xs text-text-muted mt-2">{t('home.sale.minimumDonationAmount')}</p>
             </div>
 
             {/* USDT余额 */}

@@ -2,6 +2,19 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useWallet } from '../hooks/useWallet';
 import { Card } from '../components/common/Card';
 import { INVITATION_CONTRACT_ADDRESS, INVITATION_ABI } from '../contracts/invitation';
+import { PRIVATE_SALE_ADDRESS, PRIVATE_SALE_ABI } from '../contracts/privateSale';
+
+// USDT decimals
+const USDT_DECIMALS = 18;
+
+// 格式化USDT金额（从wei转换为可读数字）
+const formatUSDT = (amount: string): string => {
+  if (!amount || amount === '0') return '0';
+  const num = BigInt(amount);
+  const divisor = 10n ** BigInt(USDT_DECIMALS);
+  const whole = num / divisor;
+  return whole.toLocaleString();
+};
 
 export const Team: React.FC = () => {
   const { address, web3 } = useWallet();
@@ -20,42 +33,77 @@ export const Team: React.FC = () => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
 
-  // 获取团队数据
+  // 获取团队数据：先展示邀请列表（业绩为0），再异步加载私募业绩
   const fetchTeamData = useCallback(async () => {
     if (!web3 || !address) return;
 
     try {
       setLoading(true);
 
-      const contract = new web3.eth.Contract(INVITATION_ABI, INVITATION_CONTRACT_ADDRESS);
+      const invitationContract = new web3.eth.Contract(INVITATION_ABI, INVITATION_CONTRACT_ADDRESS);
 
-      // 获取直推人数
-      const directCount = await contract.methods.getInviteeCount(address).call();
+      // 第一阶段：快速加载邀请关系数据
+      const [directCount, teamTotal, directInvitees] = await Promise.all([
+        invitationContract.methods.getInviteeCount(address).call(),
+        invitationContract.methods.getTeamCount(address).call(),
+        invitationContract.methods.getInvitees(address).call()
+      ]);
 
-      // 获取团队总人数
-      const teamTotal = await contract.methods.getTeamCount(address).call();
-
-      // 获取直推列表
-      const directInvitees = await contract.methods.getInvitees(address).call();
-
-      // 更新状态
+      // 先展示列表，业绩全部为0
       setTeamStats({
-        totalMembers: Number(teamTotal), // 使用团队总人数
+        totalMembers: Number(teamTotal),
         directReferrals: Number(directCount),
         teamPerformance: '0',
         smallTeamPerformance: '0'
       });
 
-      // 设置直推列表
-      const referralData = (directInvitees as string[]).map((addr) => ({
+      const initialList = (directInvitees as string[]).map((addr) => ({
         address: addr,
         teamPerformance: '0',
         personalPerformance: '0'
       }));
-      setReferralList(referralData);
+      setReferralList(initialList);
+      setLoading(false);
+
+      // 第二阶段：异步加载私募业绩
+      const privateSaleAddress = web3.utils.toChecksumAddress(PRIVATE_SALE_ADDRESS);
+      const privateSaleContract = new web3.eth.Contract(PRIVATE_SALE_ABI, privateSaleAddress);
+
+      // 并发获取所有业绩数据
+      const performancePromises: Promise<string>[] = [
+        privateSaleContract.methods.getUserTotalAmount(address).call() as Promise<string>,
+        ...(directInvitees as string[]).map((addr) =>
+          privateSaleContract.methods.getUserTotalAmount(addr).call() as Promise<string>
+        )
+      ];
+
+      const results = await Promise.all(performancePromises);
+
+      // 当前用户的业绩
+      const myPerformance = results[0];
+      const referralAmounts = results.slice(1);
+
+      // 构建带业绩的推荐列表
+      let smallTeamSum = 0n;
+      const enrichedList = (directInvitees as string[]).map((addr, i) => {
+        const rawAmount = referralAmounts[i];
+        const amountBigInt = BigInt(rawAmount);
+        smallTeamSum += amountBigInt;
+        return {
+          address: addr,
+          teamPerformance: formatUSDT(rawAmount),
+          personalPerformance: formatUSDT(rawAmount)
+        };
+      });
+
+      setTeamStats(prev => ({
+        ...prev,
+        teamPerformance: formatUSDT(myPerformance),
+        smallTeamPerformance: formatUSDT(smallTeamSum.toString())
+      }));
+      setReferralList(enrichedList);
     } catch (error) {
       console.error('获取团队数据失败:', error);
-    } finally {
       setLoading(false);
     }
   }, [web3, address]);
